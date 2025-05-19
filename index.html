@@ -2,256 +2,291 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Car Animation with Video Controls - Split Screen</title>
   <style>
-  #mainTitle {
-    font-size: 28px; /* Adjust size as needed */
-    font-weight: 600; /* Semi-bold for a modern feel */
-    color: #333; /* Dark grey for good contrast */
-    text-align: center;
-    margin-top: 20px; /* Space from the top of the viewport */
-    margin-bottom: 25px; /* Space below the title, before tabs */
-    letter-spacing: 0.5px; /* Slight letter spacing */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Consistent with body */
-    padding: 5px 0;
-    /* Optional: A subtle bottom border or shadow for more definition */
-    /* border-bottom: 1px solid #ddd; */
-    /* text-shadow: 0 1px 2px rgba(0,0,0,0.1); */
-  }
-  body {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* justify-content: center; REMOVE THIS IF YOU WANT TITLE AT TOP */
-    min-height: 100vh;
-    background-color: #f0f0f0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    padding-top: 0; /* Reset body padding-top if title handles top spacing */
-  }
+    /* ADDED: Global box-sizing for easier layout management */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
 
-  #tabsContainer {
-    margin-bottom: 15px;
-    display: flex;
-    gap: 10px;
-  }
+    html, body { /* Ensure html and body take full height */
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
 
-  .tab-button {
-    padding: 8px 15px;
-    font-size: 14px;
-    font-weight: 500;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    color: #333;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  }
-  .tab-button:hover {
-    background-color: #e9e9e9;
-    border-color: #bbb;
-  }
-  .tab-button.active {
-    background-color: #007aff;
-    color: white;
-    border-color: #007aff;
-  }
+    body {
+      display: flex; /* Use flex on body to center the pageWrapper */
+      /* flex-direction: column; /* Not strictly necessary if pageWrapper is only child */
+      align-items: center;     /* Center pageWrapper horizontally */
+      justify-content: center; /* Center pageWrapper vertically */
+      background-color: #f0f0f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
+    #pageWrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Center content within the wrapper horizontally */
+      width: 100%; /* Allow wrapper to take up space for its content */
+      max-width: 1600px; /* Optional: max width for the whole content area */
+      padding: 20px 0; /* Add some padding top/bottom to the wrapper */
+      overflow-y: auto; /* Allow vertical scroll for the wrapper if content exceeds viewport height */
+      max-height: 100%; /* ADDED: Ensures pageWrapper doesn't exceed body height if body is 100% vh */
+    }
 
-  #mainContainer {
-     display: flex;
-     flex-direction: column;
-     width: 80%;
-     max-width: 1400px;
-     height: 70vh;
-     max-height: 800px;
-     background-color: #444;
-     border-radius: 12px;
-     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-     overflow: hidden;
-     position: relative;
-     /* Add margin-bottom to create space for controls if they are too close */
-     /* margin-bottom: 20px; */ /* Adjust as needed, or use margin-top on #controls */
-   }
-  #videoContainer {
-    flex: 1;
-    position: relative;
-    background-color: #000000;
-    min-height: 0;
-  }
-  #canvasContainer {
-    flex: 1;
-    position: relative; /* For absolute positioning of #controlsGuide */
-    background-color: #333333;
-    min-height: 0;
-  }
-  video {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-  }
-  canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-  }
+    #mainTitle {
+      font-size: 28px;
+      font-weight: 600;
+      color: #333;
+      text-align: center;
+      margin-bottom: 25px;
+      letter-spacing: 0.5px;
+      padding: 5px 0;
+      flex-shrink: 0; /* ADDED: Prevent shrinking */
+    }
 
-  @keyframes controlsPulseFade {
-    0% { opacity: 0.8; }
-    20% { opacity: 0.3; }
-    40% { opacity: 0.8; }
-    60% { opacity: 0.3; }
-    80% { opacity: 0.8; }
-    100% { opacity: 0.8; }
-  }
+    #tabsContainer {
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0; /* ADDED: Prevent shrinking */
+    }
 
-  #controls {
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background: rgba(40, 40, 40, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 10px 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    opacity: 0.8;
-  }
+    .tab-button {
+      padding: 8px 15px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      color: #333;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .tab-button:hover {
+      background-color: #e9e9e9;
+      border-color: #bbb;
+    }
+    .tab-button.active {
+      background-color: #007aff;
+      color: white;
+      border-color: #007aff;
+    }
 
+    #mainContainer {
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+        max-width: 1400px;
+        background-color: #444;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        overflow: hidden;
+        position: relative;
+        /* ADDED: Explicit aspect ratio for the main container itself.
+           If children are two 96/29 blocks stacked, total AR is 96 / (29+29) = 96 / 58. */
+        aspect-ratio: 96 / 58;
+    }
 
-  #playPause {
-    background-color: #007aff;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 7px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    min-width: 70px;
-    text-align: center;
-  }
-  #playPause:hover {
-    background-color: #005ecb;
-  }
-  #playPause:active {
-    transform: scale(0.96);
-  }
-  #playPause:disabled {
-      opacity: 0.6;
-      background-color: #6c757d;
-      cursor: not-allowed;
-  }
+    #videoContainer, #canvasContainer {
+        width: 100%;
+        position: relative;
+        aspect-ratio: 96 / 29;
+        background-color: #000;
+        overflow: hidden;
+        min-width: 0; /* Add this */
+        min-height: 0; /* Add this */
+    }
+    #videoContainer {
+        background-color: #000; /* Background for video area */
+    }
+    #canvasContainer {
+        background-color: #333; /* Background for canvas area */
+    }
 
-  #progress {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 220px;
-    height: 8px;
-    background: #555;
-    border-radius: 5px;
-    outline: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-  }
-  #progress:hover {
-    opacity: 0.9;
-  }
+    video, canvas {
+        display: block;
+        width: 100%;
+        height: 100%; /* Will fill the aspect-ratio controlled parent */
+        object-fit: cover; /* or contain */
+    }
 
-  #progress::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    background: #007aff;
-    border-radius: 50%;
-    cursor: pointer;
-    margin-top: -5px; /* (thumb height - track height) / 2 * -1 */
-    box-shadow: 0 0 5px rgba(0, 122, 255, 0.5);
-    transition: transform 0.1s ease;
-  }
-  #progress::-webkit-slider-thumb:active {
-      transform: scale(1.2);
-  }
+    /* Adjust border-radius for children if needed, #mainContainer already clips with overflow:hidden */
+    #videoContainer {
+        border-top-left-radius: 12px; /* Matches parent's radius if it's the first element */
+        border-top-right-radius: 12px;
+    }
+    #canvasContainer {
+        border-bottom-left-radius: 12px; /* Matches parent's radius if it's the last element */
+        border-bottom-right-radius: 12px;
+    }
+    video {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+    canvas {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
 
-  #progress::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    background: #007aff;
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 0 5px rgba(0, 122, 255, 0.5);
-  }
-   #progress::-moz-range-thumb:active {
-      transform: scale(1.2);
-  }
+    @keyframes controlsPulseFade {
+      0% { opacity: 0.8; }
+      20% { opacity: 0.3; }
+      40% { opacity: 0.8; }
+      60% { opacity: 0.3; }
+      80% { opacity: 0.8; }
+      100% { opacity: 0.8; }
+    }
 
-  #controlsGuide {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    padding: 8px 12px;
-    background-color: rgba(0, 0, 0, 0.65);
-    color: white;
-    border-radius: 5px;
-    font-size: 12px;
-    line-height: 1.5;
-    z-index: 100;
-    font-family: Arial, sans-serif;
-    pointer-events: none;
-    animation: controlsPulseFade 1s 5;
-  }
-</style>
+    #controls {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(40, 40, 40, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      opacity: 0.8;
+      flex-shrink: 0; /* ADDED: Prevent shrinking */
+    }
+
+    #playPause {
+      background-color: #007aff;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      min-width: 70px;
+      text-align: center;
+    }
+    #playPause:hover {
+      background-color: #005ecb;
+    }
+    #playPause:active {
+      transform: scale(0.96);
+    }
+    #playPause:disabled {
+        opacity: 0.6;
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+
+    #progress {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 220px;
+      height: 8px;
+      background: #555;
+      border-radius: 5px;
+      outline: none;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    #progress:hover {
+      opacity: 0.9;
+    }
+
+    #progress::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #007aff;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-top: -5px; /* (thumb height - track height) / 2 * -1 */
+      box-shadow: 0 0 5px rgba(0, 122, 255, 0.5);
+      transition: transform 0.1s ease;
+    }
+    #progress::-webkit-slider-thumb:active {
+        transform: scale(1.2);
+    }
+
+    #progress::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: #007aff;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 5px rgba(0, 122, 255, 0.5);
+    }
+     #progress::-moz-range-thumb:active {
+        transform: scale(1.2);
+    }
+
+    #controlsGuide {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 8px 12px;
+      background-color: rgba(0, 0, 0, 0.65);
+      color: white;
+      border-radius: 5px;
+      font-size: 12px;
+      line-height: 1.5;
+      z-index: 100;
+      font-family: Arial, sans-serif;
+      pointer-events: none;
+      animation: controlsPulseFade 1s 5;
+    }
+  </style>
 <body>
-  <h1 id="mainTitle">3D Reconstruction Demo</h1>
+  <div id="pageWrapper"> <!-- NEW WRAPPER -->
+    <h1 id="mainTitle">3D Reconstruction Demo</h1>
 
-  <div id="tabsContainer">
-    <!-- Tabs will be generated by JS -->
-  </div>
-
-  <div id="mainContainer">
-    <div id="videoContainer">
-      <video id="overlayVideo"
-             loop
-             muted
-             playsinline
-             preload="auto">
-        Your browser does not support HTML5 video.
-      </video>
+    <div id="tabsContainer">
+      <!-- Tabs will be generated by JS -->
     </div>
 
-    <div id="canvasContainer">
-      <!-- Canvas and controls guide will be appended here -->
+    <div id="mainContainer">
+      <div id="videoContainer">
+        <video id="overlayVideo"
+               loop
+               muted
+               playsinline
+               preload="auto">
+          Your browser does not support HTML5 video.
+        </video>
+      </div>
+
+      <div id="canvasContainer">
+        <!-- Canvas and controls guide will be appended here -->
+      </div>
+    </div>
+
+    <div id="controls">
+      <button id="playPause">Play</button>
+      <input type="range" id="progress" min="0" max="1" step="0.001" value="0">
     </div>
   </div>
-
-  <div id="controls">
-    <button id="playPause">Play</button>
-    <input type="range" id="progress" min="0" max="1" step="0.001" value="0">
-  </div>
-
   <script type="module">
     import * as THREE from 'https://esm.sh/three@0.161.0';
     import { OrbitControls } from 'https://esm.sh/three@0.161.0/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from 'https://esm.sh/three@0.161.0/examples/jsm/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'https://esm.sh/three@0.161.0/examples/jsm/loaders/DRACOLoader.js'; // ADDED
 
     let scene, camera, renderer, orbitControls;
-    let plainMat = null; // Default material for GLTF models if no color override
-    const cars = new Map(); // Stores { mesh: THREE.Object3D, type: String, currentColorStr: "r,g,b" }
+    let plainMat = null;
+    const cars = new Map();
 
+    // UPDATED modelConfigs to point to optimized files
+    // 'Car' here refers to the model used for DYNAMIC cars (untextured, to be colored by JSON)
     const modelConfigs = [
-        { name: 'Car',   file: 'car.glb',   scale: 0.1,  rotationYOffset: -0.2,        verticalOffset: -2  },
-        { name: 'Van',   file: 'van.glb',   scale: 4,    rotationYOffset: -Math.PI / 2,  verticalOffset: -2  },
-        { name: 'Truck', file: 'van.glb', scale: 3,    rotationYOffset: 0,           verticalOffset: -2  },
-        { name: 'Tram',  file: 'tram.glb',  scale: 1.5,    rotationYOffset: -0.1,        verticalOffset: -2  },
+        { name: 'Car',   file: 'car_optimized.glb',   scale: 0.1,  rotationYOffset: -0.2,        verticalOffset: -2  },
+        { name: 'Van',   file: 'van_optimized.glb',   scale: 4,    rotationYOffset: -Math.PI / 2,  verticalOffset: -2  },
+        { name: 'Truck', file: 'truck_optimized.glb', scale: 3,    rotationYOffset: 0,           verticalOffset: -2  },
+        { name: 'Tram',  file: 'tram_optimized.glb',  scale: 1.5,  rotationYOffset: -0.1,        verticalOffset: -2  },
     ];
     const modelAssets = new Map();
 
@@ -281,39 +316,43 @@
     async function setupThreeJSBase() {
       console.log('setupThreeJSBase() CALLED');
       try {
+        // --- DRACO Loader Setup ---
+        const dracoLoader = new DRACOLoader();
+        // **IMPORTANT**: Adjust this path to where your Draco decoder files are served from.
+        // e.g., if you copied them to a 'libs/draco/gltf/' folder in your project's root:
+        dracoLoader.setDecoderPath('libs/draco/gltf/');
+        // Or from a CDN (check for the latest version that matches your Three.js version):
+        // dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+        // dracoLoader.setDecoderPath('https://esm.sh/three@0.161.0/examples/jsm/libs/draco/gltf/'); // Might work
+
         const loader = new GLTFLoader();
-        // This material will be used if a GLTF model part doesn't have its own,
-        // or as a fallback if JSON doesn't provide a color for dynamic cars.
+        loader.setDRACOLoader(dracoLoader); // Attach DracoLoader to GLTFLoader
+        // --- END DRACO Loader Setup ---
+
         plainMat = new THREE.MeshStandardMaterial({
-            color: 0xdddddd, // Default color for models without texture or override
+            color: 0xdddddd,
             metalness: 0.4,
             roughness: 0.6,
-            // transparent: true, // Enable if models might have transparency not handled by GLTF
-            // opacity: 0.9,    // Example opacity
         });
 
-
-        console.log("Loading 3D models...");
+        console.log("Loading 3D models for dynamic instances...");
         for (const config of modelConfigs) {
             try {
-                const gltf = await loader.loadAsync(config.file);
+                const gltf = await loader.loadAsync(config.file); // Will use Draco if model is compressed
                 const proto = gltf.scene;
                 proto.scale.set(config.scale, config.scale, config.scale);
 
-                // Apply plainMat as a default to parts that might not have materials defined
-                // This ensures they are visible and can be colored later if needed.
-                // However, GLTFLoader usually assigns materials if they are in the GLB.
-                // This step is more of a fallback or if you want to ensure a uniform base.
                 proto.traverse(n => {
                     if (n.isMesh) {
-                        if (!n.material) { // If a mesh part has NO material
-                           n.material = plainMat;
-                        } else if (Array.isArray(n.material)) { // If it's a MultiMaterial
+                        // Optimized GLBs might already have simple materials if textures were stripped correctly.
+                        // This is a fallback.
+                        if (!n.material) {
+                           n.material = plainMat.clone(); // Clone for safety
+                        } else if (Array.isArray(n.material)) {
                             n.material.forEach((mat, idx) => {
-                                if (!mat) n.material[idx] = plainMat;
+                                if (!mat) n.material[idx] = plainMat.clone();
                             });
                         }
-                        // We will handle specific color overrides from JSON later for dynamic cars
                     }
                 });
 
@@ -326,15 +365,18 @@
                     rotationYOffset: config.rotationYOffset,
                     verticalOffset: config.verticalOffset
                 });
-                console.log(`Model "${config.name}" (${config.file}) loaded. Scale: ${config.scale}, BaseOffsetY: ${calculatedBaseOffsetY.toFixed(3)}, RotOffset: ${config.rotationYOffset.toFixed(3)}, VertOffset: ${config.verticalOffset.toFixed(3)}`);
+                console.log(`Model "${config.name}" (${config.file}) loaded for dynamic use. Scale: ${config.scale}, BaseOffsetY: ${calculatedBaseOffsetY.toFixed(3)}, RotOffset: ${config.rotationYOffset.toFixed(3)}, VertOffset: ${config.verticalOffset.toFixed(3)}`);
             } catch (err) {
-                console.error(`Failed to load model ${config.file} for type ${config.name}:`, err);
+                console.error(`Failed to load dynamic model ${config.file} for type ${config.name}:`, err);
             }
         }
-        if (modelAssets.size === 0) {
-             throw new Error("No 3D models could be loaded. Application cannot start.");
+        if (modelAssets.size === 0 && !modelConfigs.some(c => c.name === 'Car')) { // Check if at least non-Car models loaded
+             console.warn("No dynamic models could be loaded. Static car might still load.");
         }
-        console.log("All available models processed.");
+        if (!modelAssets.has('Car') && modelConfigs.some(c => c.name === 'Car')) {
+            console.warn("Default 'Car' model (car_optimized.glb) for dynamic instances failed to load.");
+        }
+        console.log("All available dynamic models processed.");
 
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0xeeeeee);
@@ -360,35 +402,57 @@
         orbitControls = new OrbitControls(camera, renderer.domElement);
         orbitControls.enableDamping = true;
 
-        // Static car for initial camera setup reference - uses its original texture
-        if (modelAssets.has('Car')) {
-            const carAsset = modelAssets.get('Car');
-            const staticCarMesh = carAsset.proto.clone(true); // Clone includes materials from GLTF
-            staticCarMesh.position.set(0, carAsset.baseOffsetY , 0);
-            staticCarMesh.rotation.y = 1.35;
+        // --- Static car (TEXTURED version) for initial camera setup reference ---
+        try {
+            console.log("Loading static textured car (car_texture_optimized.glb)...");
+            const staticCarGltf = await loader.loadAsync('car_texture_optimized.glb'); // Use the same GLTFLoader instance
+            const staticCarProto = staticCarGltf.scene;
+
+            // Apply scale and offsets similar to the 'Car' config, or define uniquely if needed
+            const staticCarScale = 0.1;
+            const staticCarVerticalOffset = -2; // As per original Car config
+            const staticCarRotationY = 1.35;    // As per original static car setup
+
+            staticCarProto.scale.set(staticCarScale, staticCarScale, staticCarScale);
+
+            const bboxStatic = new THREE.Box3().setFromObject(staticCarProto);
+            const baseOffsetYStatic = bboxStatic.min.y === Infinity || bboxStatic.min.y === -Infinity ? 0 : -bboxStatic.min.y;
+
+            const staticCarMesh = staticCarProto.clone(true); // Clone includes materials from GLTF
+            staticCarMesh.position.set(0, baseOffsetYStatic, 0);
+            staticCarMesh.rotation.y = staticCarRotationY;
             staticCarMesh.traverse(n => {
                 if (n.isMesh) {
-                    // It will use materials from the GLB. If a part has no material,
-                    // the traverse in model loading above *might* have set plainMat.
-                    // If you want to ensure it uses plainMat as a base if no texture:
-                    // if (!n.material || (Array.isArray(n.material) && !n.material.length)) {
-                    //    n.material = plainMat;
-                    // }
                     n.castShadow = true;
                     n.receiveShadow = true;
                 }
             });
             scene.add(staticCarMesh);
             staticCarMesh.updateMatrixWorld(true);
+            console.log("Static textured car (car_texture_optimized.glb) loaded and added to scene.");
+        } catch (err) {
+            console.error("Failed to load static textured car (car_texture_optimized.glb):", err);
+            // Fallback: If static car fails, but dynamic 'Car' model loaded, use that as a non-textured placeholder
+            if (modelAssets.has('Car')) {
+                console.warn("Falling back to using dynamic 'Car' model (untextured) for static placeholder.");
+                const carAsset = modelAssets.get('Car'); // This is car_optimized.glb
+                const fallbackStaticCarMesh = carAsset.proto.clone(true);
+                fallbackStaticCarMesh.position.set(0, carAsset.baseOffsetY + carAsset.verticalOffset, 0);
+                fallbackStaticCarMesh.rotation.y = 1.35;
+                fallbackStaticCarMesh.traverse(n => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
+                scene.add(fallbackStaticCarMesh);
+                fallbackStaticCarMesh.updateMatrixWorld(true);
+            } else {
+                 console.error("CRITICAL: Both static textured car and dynamic 'Car' model failed to load. Scene may be empty or camera mispositioned.");
+            }
         }
+        // --- END Static car loading ---
 
-        // Add back the green test cube
         const testCubeGeo = new THREE.BoxGeometry(5, 5, 5);
         const testCubeMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
         const testCube = new THREE.Mesh(testCubeGeo, testCubeMat);
-        testCube.position.set(0, 2.5, 0); // Position it so its bottom is at y=0
+        testCube.position.set(0, 2.5, 0);
         scene.add(testCube);
-
 
         camera.position.set(0.16, 10.71, -11.03);
         orbitControls.target.set(0.13, 3.15, 1.49);
@@ -439,15 +503,16 @@
       }
       playing = false;
 
+      while (overlayVideo.firstChild) {
+        overlayVideo.removeChild(overlayVideo.firstChild);
+      }
+      overlayVideo.removeAttribute('src');
+
       for (const carEntry of cars.values()) {
         if (scene && carEntry.mesh) {
-            // Dispose materials if they are unique per car (not the original GLTF materials)
             carEntry.mesh.traverse(child => {
                 if (child.isMesh && child.material) {
-                    // Check if material was dynamically created (not part of original GLTF)
-                    // This is a bit tricky. A simpler approach for now: if it's not plainMat, dispose.
-                    // A more robust way would be to tag dynamically created materials.
-                    if (child.material !== plainMat && !child.material.isGLTFMaterial) { // A heuristic
+                    if (child.material.userData && child.material.userData.isDynamicColor) {
                          child.material.dispose();
                     }
                 }
@@ -464,49 +529,66 @@
       simDuration = 1;
       slider.value = 0;
 
+      let videoBasePath = dataset.video;
+      if (videoBasePath.endsWith('.mp4')) {
+        videoBasePath = videoBasePath.substring(0, videoBasePath.length - 4);
+      }
+
+      const sourceDesktop = document.createElement('source');
+      sourceDesktop.src = `${videoBasePath}_desktop.mp4`;
+      sourceDesktop.type = 'video/mp4';
+      sourceDesktop.media = 'all and (min-width: 769px)';
+      overlayVideo.appendChild(sourceDesktop);
+
+      const sourceMobile = document.createElement('source');
+      sourceMobile.src = `${videoBasePath}_iphone.mp4`;
+      sourceMobile.type = 'video/mp4';
+      overlayVideo.appendChild(sourceMobile);
+
+      const fallbackTextNode = document.createTextNode('Your browser does not support HTML5 video or the provided video formats.');
+      overlayVideo.appendChild(fallbackTextNode);
+
+
       videoReadyPromise = new Promise((resolve, reject) => {
         const onLoadedMetadata = () => {
-          overlayVideo.removeEventListener('loadedmetadata', onLoadedMetadata);
-          overlayVideo.removeEventListener('error', onErrorDuringLoad);
           if (isFinite(overlayVideo.duration) && overlayVideo.duration > 0) {
             simDuration = overlayVideo.duration;
-            console.log(`Video metadata loaded. Video Duration: ${simDuration.toFixed(3)}s. This will be simDuration.`);
+            const currentSourceURL = overlayVideo.currentSrc;
+            let loadedVersion = "unknown";
+            if (currentSourceURL.includes("_desktop.mp4")) loadedVersion = "Desktop";
+            else if (currentSourceURL.includes("_iphone.mp4")) loadedVersion = "iPhone";
+            console.log(`Video metadata loaded. Chosen version: ${loadedVersion}. Source URL: ${currentSourceURL}. Duration: ${simDuration.toFixed(3)}s.`);
             resolve();
           } else {
-            console.error("Video duration is invalid after loadedmetadata.");
+            console.error(`Video duration is invalid. currentSrc: ${overlayVideo.currentSrc}`);
             reject(new Error("Invalid video duration."));
           }
         };
         const onErrorDuringLoad = (e) => {
-            overlayVideo.removeEventListener('loadedmetadata', onLoadedMetadata);
-            overlayVideo.removeEventListener('error', onErrorDuringLoad);
-            console.error("Error loading video for metadata:", e);
+            console.error("Error loading video for metadata:", e, `currentSrc: ${overlayVideo.currentSrc}`, "Attempted sources:", Array.from(overlayVideo.querySelectorAll('source')).map(s => s.src));
             reject(new Error("Video load error for metadata."));
         };
-        overlayVideo.addEventListener('loadedmetadata', onLoadedMetadata);
-        overlayVideo.addEventListener('error', onErrorDuringLoad);
+        overlayVideo.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
+        overlayVideo.addEventListener('error', onErrorDuringLoad, { once: true });
       });
 
-      console.log(`Loading video: ${dataset.video}`);
-      overlayVideo.src = dataset.video;
+      console.log(`Telling browser to load video. Desktop: ${sourceDesktop.src}, Mobile: ${sourceMobile.src}`);
       overlayVideo.load();
 
       try {
         console.log(`Fetching JSON: ${dataset.json}`);
         const response = await fetch(dataset.json);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status} for ${dataset.json}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status} for ${dataset.json}`);
         const simData = await response.json();
         const originalFrameKeys = Object.keys(simData).sort((a,b)=>parseFloat(a)-parseFloat(b));
         const originalTimesArr  = originalFrameKeys.map(k=>parseFloat(k));
 
         console.log(`JSON data loaded. Original time entries: ${originalTimesArr.length}`);
         if (originalTimesArr.length === 0) {
-            console.warn("JSON contains no time entries. Simulation will be empty.");
-            await videoReadyPromise.catch(e => console.warn("Video readiness error, but proceeding with empty sim: ", e));
+            console.warn("JSON contains no time entries.");
+            await videoReadyPromise.catch(e => console.warn("Video error during empty JSON load: ", e));
             playBtn.textContent = 'Play';
-            playBtn.disabled = originalTimesArr.length === 0 || !!overlayVideo.error;
+            playBtn.disabled = !!overlayVideo.error;
             return;
         }
 
@@ -516,35 +598,21 @@
         const originalJsonEndTime = originalTimesArr[originalTimesArr.length - 1];
         const originalJsonDuration = originalJsonEndTime - originalJsonStartTime;
 
-        simMap.clear();
-        timesArr = [];
-
+        simMap.clear(); timesArr = [];
         if (originalJsonDuration > 0) {
             const scaleFactor = simDuration / originalJsonDuration;
-            originalTimesArr.forEach(t => {
-                const originalData = simData[t.toString()];
-                const scaledTime = (t - originalJsonStartTime) * scaleFactor;
-                simMap.set(scaledTime, originalData);
-            });
+            originalTimesArr.forEach(t => simMap.set((t - originalJsonStartTime) * scaleFactor, simData[t.toString()]));
             timesArr = Array.from(simMap.keys()).sort((a,b) => a - b);
         } else {
-            originalTimesArr.forEach(t => {
-                 const originalData = simData[t.toString()];
-                 simMap.set(0, originalData);
-            });
-             timesArr = [0];
-             if (simDuration > 0 && originalTimesArr.length > 1) {
-                console.warn("Multiple JSON frames at the same original time, only using first for time 0.");
-             }
+            originalTimesArr.forEach(t => simMap.set(0, simData[t.toString()]));
+            timesArr = [0];
+            if (simDuration > 0 && originalTimesArr.length > 1) console.warn("Multiple JSON frames at same original time, mapped to time 0.");
         }
-
-        console.log(`Simulation data re-scaled. New time entries: ${timesArr.length}. Duration matches video: ${simDuration.toFixed(3)}s`);
-        if (timesArr.length > 0) {
-          console.log(`First scaled time: ${timesArr[0].toFixed(3)}, Last scaled time: ${timesArr[timesArr.length-1].toFixed(3)}`);
-        }
+        console.log(`Simulation data re-scaled. Entries: ${timesArr.length}. Duration: ${simDuration.toFixed(3)}s`);
+        if (timesArr.length > 0) console.log(`First scaled time: ${timesArr[0].toFixed(3)}, Last: ${timesArr[timesArr.length-1].toFixed(3)}`);
 
       } catch (error) {
-        console.error(`Error processing dataset for ${dataset.name}:`, error);
+        console.error(`Error processing dataset ${dataset.name}:`, error);
         playBtn.textContent = 'Error';
       } finally {
         if (!overlayVideo.error && playBtn.disabled) {
@@ -552,67 +620,45 @@
             playBtn.disabled = false;
         }
       }
-
-      document.querySelectorAll('#tabsContainer .tab-button').forEach((btn, i) => {
-        btn.classList.toggle('active', i === currentDatasetIndex);
-      });
+      document.querySelectorAll('#tabsContainer .tab-button').forEach((btn, i) => btn.classList.toggle('active', i === currentDatasetIndex));
     }
 
     function setupEventListeners() {
       overlayVideo.addEventListener('canplay', () => {
-        console.log('Video: canplay. Video error:', overlayVideo.error);
+        console.log('Video: canplay. Error:', overlayVideo.error);
         if (overlayVideo.error) return;
         playBtn.textContent = overlayVideo.paused ? 'Play' : 'Pause';
         playBtn.disabled = false;
       });
       overlayVideo.addEventListener('canplaythrough', () => console.log('Video: canplaythrough'));
-
       overlayVideo.addEventListener('playing', () => {
           if (overlayVideo.error) return;
-          playing = true;
-          playBtn.textContent = 'Pause';
-          playBtn.disabled = false;
-          console.log(`Video "playing" event. playing=${playing}, video.currentTime=${overlayVideo.currentTime.toFixed(3)}`);
+          playing = true; playBtn.textContent = 'Pause'; playBtn.disabled = false;
+          console.log(`Video "playing". playing=${playing}, currentTime=${overlayVideo.currentTime.toFixed(3)}`);
       });
-
       overlayVideo.addEventListener('pause', () => {
           if (overlayVideo.error) return;
-          playing = false;
-          playBtn.textContent = 'Play';
-          playBtn.disabled = false;
-          console.log(`Video "pause" event. playing=${playing}, video.currentTime=${overlayVideo.currentTime.toFixed(3)}`);
+          playing = false; playBtn.textContent = 'Play'; playBtn.disabled = false;
+          console.log(`Video "pause". playing=${playing}, currentTime=${overlayVideo.currentTime.toFixed(3)}`);
       });
-
       overlayVideo.addEventListener('ended', () => {
         if (overlayVideo.error) return;
-        console.log('Video: "ended" EVENT FIRED');
-        playing = false;
-        playBtn.textContent = 'Play';
+        console.log('Video: "ended"');
+        playing = false; playBtn.textContent = 'Play';
       });
-
       overlayVideo.addEventListener('seeked', () => {
           if (overlayVideo.error) return;
-          console.log(`Video: "seeked" EVENT. currentTime: ${overlayVideo.currentTime.toFixed(3)}`);
-          simTimeAbs = overlayVideo.currentTime;
-          frameIdx = 0;
-
-          if (overlayVideo.paused) {
-              playing = false;
-              playBtn.textContent = 'Play';
-              playBtn.disabled = false;
-          }
-          if (!slider.matches(':active')) {
-              slider.value = simDuration > 0 ? simTimeAbs / simDuration : 0;
-          }
-          console.log(`Seeked: simTimeAbs=${simTimeAbs.toFixed(3)}, slider.value=${slider.value}`);
+          console.log(`Video "seeked". currentTime: ${overlayVideo.currentTime.toFixed(3)}`);
+          simTimeAbs = overlayVideo.currentTime; frameIdx = 0;
+          if (overlayVideo.paused) { playing = false; playBtn.textContent = 'Play'; playBtn.disabled = false; }
+          if (!slider.matches(':active')) slider.value = simDuration > 0 ? simTimeAbs / simDuration : 0;
           updateSceneObjects(simTimeAbs);
       });
-
       overlayVideo.addEventListener('error', e => {
         console.error('Video: ERROR event!', e);
         let errorMsg = 'Video Error';
         if (overlayVideo.error) {
-            console.error('Video error details - Code:', overlayVideo.error.code, 'Message:', overlayVideo.error.message);
+            console.error('Details - Code:', overlayVideo.error.code, 'Message:', overlayVideo.error.message);
              switch (overlayVideo.error.code) {
                 case MediaError.MEDIA_ERR_ABORTED: errorMsg = 'Vid Load Aborted'; break;
                 case MediaError.MEDIA_ERR_NETWORK: errorMsg = 'Vid Network Err'; break;
@@ -621,42 +667,26 @@
                 default: errorMsg = 'Vid Unknown Err';
             }
         }
-        playBtn.textContent = errorMsg;
-        playBtn.disabled = true;
-        playing = false;
+        playBtn.textContent = errorMsg; playBtn.disabled = true; playing = false;
       });
-
       playBtn.addEventListener('click', () => {
         if (playBtn.disabled || overlayVideo.error) return;
         playBtn.disabled = true;
-
         if (overlayVideo.paused) {
-          console.log("Play button: Attempting to play video...");
           overlayVideo.play().catch(e => {
-            console.error("video.play() promise rejected:", e);
-            playBtn.disabled = false;
-            playBtn.textContent = 'Play';
-            playing = false;
+            console.error("video.play() rejected:", e);
+            playBtn.disabled = false; playBtn.textContent = 'Play'; playing = false;
           });
         } else {
-          console.log("Play button: Attempting to pause video...");
           overlayVideo.pause();
         }
       });
-
       slider.addEventListener('input', () => {
         if (overlayVideo.error || !isFinite(simDuration) || simDuration <= 0) return;
-
         const targetVideoTime = parseFloat(slider.value) * simDuration;
-
         if (Math.abs(targetVideoTime - overlayVideo.currentTime) > 0.05) {
-            if (!overlayVideo.paused) {
-                overlayVideo.pause();
-            } else {
-                playing = false;
-                playBtn.textContent = 'Play';
-                playBtn.disabled = false;
-            }
+            if (!overlayVideo.paused) overlayVideo.pause();
+            else { playing = false; playBtn.textContent = 'Play'; playBtn.disabled = false; }
             overlayVideo.currentTime = Math.max(0, Math.min(targetVideoTime, simDuration - 0.01));
         }
       });
@@ -669,13 +699,9 @@
             button.classList.add('tab-button');
             button.textContent = dataset.name;
             button.dataset.index = index;
-            if (index === currentDatasetIndex) {
-                button.classList.add('active');
-            }
+            if (index === currentDatasetIndex) button.classList.add('active');
             button.addEventListener('click', () => {
-                if (index !== currentDatasetIndex && !playBtn.disabled) {
-                    loadDataset(index);
-                }
+                if (index !== currentDatasetIndex && !playBtn.disabled) loadDataset(index);
             });
             tabsContainer.appendChild(button);
         });
@@ -683,30 +709,22 @@
 
     function updateSceneObjects(currentSimTime) {
         if (timesArr.length > 0) {
-            if (frameIdx > 0 && currentSimTime < timesArr[frameIdx]) {
-              frameIdx = 0;
-            }
-            while (frameIdx < timesArr.length - 1 && currentSimTime >= timesArr[frameIdx + 1]) {
-              frameIdx++;
-            }
+            if (frameIdx > 0 && currentSimTime < timesArr[frameIdx]) frameIdx = 0;
+            while (frameIdx < timesArr.length - 1 && currentSimTime >= timesArr[frameIdx + 1]) frameIdx++;
         } else {
             frameIdx = 0;
         }
 
         const frameData = (timesArr.length > 0 && simMap.has(timesArr[frameIdx])) ? simMap.get(timesArr[frameIdx]) : [];
         const presentIds = new Set();
-        if (Array.isArray(frameData)) {
-            frameData.forEach((o,i) => presentIds.add(o.id !== undefined ? String(o.id) : String(i)));
-        }
+        if (Array.isArray(frameData)) frameData.forEach((o,i) => presentIds.add(o.id !== undefined ? String(o.id) : String(i)));
 
         for (let id of cars.keys()) {
             if (!presentIds.has(id)) {
                 const carEntry = cars.get(id);
                 if (carEntry && carEntry.mesh) {
-                    carEntry.mesh.traverse(child => { // Dispose dynamically created materials
-                        if (child.isMesh && child.material && child.material.userData.isDynamicColor) {
-                            child.material.dispose();
-                        }
+                    carEntry.mesh.traverse(child => {
+                        if (child.isMesh && child.material && child.material.userData.isDynamicColor) child.material.dispose();
                     });
                     scene.remove(carEntry.mesh);
                 }
@@ -717,7 +735,7 @@
         if (Array.isArray(frameData) && modelAssets.size > 0) {
             frameData.forEach((o,i) => {
                 const id = o.id !== undefined ? String(o.id) : String(i);
-                const type = o.type || 'Car';
+                const type = o.type || 'Car'; // Default to 'Car' if type is missing
                 const asset = modelAssets.get(type);
 
                 if (!asset) {
@@ -725,92 +743,61 @@
                     return;
                 }
                 if (![o.x, o.y, o.z, o.rotation_y].every(val => typeof val === 'number' && isFinite(val))) {
-                    console.warn(`Invalid position/rotation data for object ID: ${id}, type: ${type}`, o);
+                    console.warn(`Invalid data for ID: ${id}, type: ${type}`, o);
                     if (cars.has(id)) { scene.remove(cars.get(id).mesh); cars.delete(id); }
                     return;
                 }
 
                 const yPos = o.y + asset.baseOffsetY + asset.verticalOffset;
-                const xPos = -o.x;
-                const zPos = o.z;
-                const yaw = o.rotation_y;
+                const xPos = -o.x; const zPos = o.z; const yaw = o.rotation_y;
                 let carEntry = cars.get(id);
 
                 const objectColorRGB = o.color;
-                let newColorStr = "gltf_default"; // Default to using GLTF materials
-
-                if (Array.isArray(objectColorRGB) && objectColorRGB.length === 3) {
-                    newColorStr = `rgb(${objectColorRGB.join(',')})`;
-                }
-
+                let newColorStr = "gltf_default";
+                if (Array.isArray(objectColorRGB) && objectColorRGB.length === 3) newColorStr = `rgb(${objectColorRGB.join(',')})`;
 
                 if (carEntry && carEntry.type !== type) {
-                     carEntry.mesh.traverse(child => { // Dispose dynamically created materials
-                        if (child.isMesh && child.material && child.material.userData.isDynamicColor) {
-                            child.material.dispose();
-                        }
+                     carEntry.mesh.traverse(child => {
+                        if (child.isMesh && child.material && child.material.userData.isDynamicColor) child.material.dispose();
                     });
-                    scene.remove(carEntry.mesh);
-                    cars.delete(id);
-                    carEntry = null;
+                    scene.remove(carEntry.mesh); cars.delete(id); carEntry = null;
                 }
 
                 if (!carEntry) {
-                    const newMesh = asset.proto.clone(true); // Clones GLTF materials by default
-
+                    const newMesh = asset.proto.clone(true);
                     if (Array.isArray(objectColorRGB) && objectColorRGB.length === 3) {
-                        // Override with new color material
                         const newMaterial = new THREE.MeshStandardMaterial({
                             color: new THREE.Color(objectColorRGB[0]/255, objectColorRGB[1]/255, objectColorRGB[2]/255),
-                            metalness: 0.4, // Or from JSON if available
-                            roughness: 0.6 // Or from JSON if available
+                            metalness: 0.4, roughness: 0.6
                         });
-                        newMaterial.userData.isDynamicColor = true; // Mark it
-                        newMesh.traverse(n => {
-                            if (n.isMesh) n.material = newMaterial;
-                        });
+                        newMaterial.userData.isDynamicColor = true;
+                        newMesh.traverse(n => { if (n.isMesh) n.material = newMaterial; });
                     }
-                    // Else, it uses the materials cloned from asset.proto (original GLTF materials)
-
-                    newMesh.traverse(n => { // Ensure shadow casting for all parts
-                        if (n.isMesh) {
-                            n.castShadow = true;
-                            n.receiveShadow = true;
-                        }
-                    });
-
+                    newMesh.traverse(n => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; }});
                     scene.add(newMesh);
                     carEntry = { mesh: newMesh, type: type, currentColorStr: newColorStr };
                     cars.set(id, carEntry);
                 } else {
-                    // Update color only if it has changed
                     if (carEntry.currentColorStr !== newColorStr) {
-                        // Dispose old dynamic materials
                         carEntry.mesh.traverse(child => {
-                           if (child.isMesh && child.material && child.material.userData.isDynamicColor) {
-                               child.material.dispose();
-                           }
+                           if (child.isMesh && child.material && child.material.userData.isDynamicColor) child.material.dispose();
                         });
-
                         if (Array.isArray(objectColorRGB) && objectColorRGB.length === 3) {
                             const updatedMaterial = new THREE.MeshStandardMaterial({
                                 color: new THREE.Color(objectColorRGB[0]/255, objectColorRGB[1]/255, objectColorRGB[2]/255),
-                                metalness: 0.4,
-                                roughness: 0.6
+                                metalness: 0.4, roughness: 0.6
                             });
                             updatedMaterial.userData.isDynamicColor = true;
-                            carEntry.mesh.traverse(n => {
-                               if (n.isMesh) n.material = updatedMaterial;
-                            });
-                        } else { // Revert to original GLTF materials
-                            const originalProtoMesh = asset.proto.clone(true);
+                            carEntry.mesh.traverse(n => { if (n.isMesh) n.material = updatedMaterial; });
+                        } else {
+                            const originalProtoMesh = asset.proto.clone(true); // Re-clone to get original materials
                             carEntry.mesh.traverse(n => {
                                if (n.isMesh) {
-                                   const correspondingProtoNode = originalProtoMesh.getObjectByName(n.name);
+                                   const correspondingProtoNode = originalProtoMesh.getObjectByProperty('uuid', n.uuid) || originalProtoMesh.getObjectByName(n.name); // Try UUID then name
                                    if (correspondingProtoNode && correspondingProtoNode.isMesh) {
                                        n.material = correspondingProtoNode.material;
                                    } else {
-                                       n.material = plainMat; // Fallback
+                                       n.material = plainMat.clone(); // Fallback to a clone of plainMat
                                    }
                                }
                             });
@@ -818,7 +805,6 @@
                         carEntry.currentColorStr = newColorStr;
                     }
                 }
-
                 carEntry.mesh.position.set(xPos, yPos, zPos);
                 carEntry.mesh.rotation.set(0, (2 * Math.PI - yaw) + asset.rotationYOffset, 0);
             });
@@ -827,48 +813,31 @@
 
     function animate() {
       requestAnimationFrame(animate);
-
-      if (playing) {
-        simTimeAbs = overlayVideo.currentTime;
-      }
-
+      if (playing) simTimeAbs = overlayVideo.currentTime;
       if (isFinite(simDuration) && simDuration > 0 && !slider.matches(':active')) {
           slider.value = simTimeAbs / simDuration;
       } else if ((!isFinite(simDuration) || simDuration <= 0) && !slider.matches(':active')) {
           slider.value = 0;
       }
-
       updateSceneObjects(simTimeAbs);
-
       if (orbitControls) orbitControls.update();
       if (renderer && scene && camera) renderer.render(scene, camera);
     }
 
     async function main() {
       console.log('main() CALLED');
-      playBtn.disabled = true;
-      playBtn.textContent = 'Loading...';
-
+      playBtn.disabled = true; playBtn.textContent = 'Loading...';
       const threeJsReady = await setupThreeJSBase();
-      if (!threeJsReady) {
-          playBtn.textContent = '3D Error';
-          return;
-      }
-
+      if (!threeJsReady) { playBtn.textContent = '3D Error'; return; }
       generateTabs();
       setupEventListeners();
       await loadDataset(currentDatasetIndex);
     }
 
     main().catch(err => {
-        console.error("CRITICAL FAILURE in main() promise:", err);
-        if (canvasContainer) {
-            canvasContainer.innerHTML = `<p style="color: red; padding: 20px;">Critical script error: ${err.message}. Check console.</p>`;
-        }
-        if (playBtn) {
-            playBtn.textContent = 'Fatal Error';
-            playBtn.disabled = true;
-        }
+        console.error("CRITICAL FAILURE in main():", err);
+        if (canvasContainer) canvasContainer.innerHTML = `<p style="color: red; padding: 20px;">Critical script error: ${err.message}.</p>`;
+        if (playBtn) { playBtn.textContent = 'Fatal Error'; playBtn.disabled = true; }
     });
   </script>
 </body>
